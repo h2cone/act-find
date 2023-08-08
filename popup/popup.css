@@ -1,0 +1,9 @@
+div {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+input[type="text"],
+button {
+    display: inline-block;
+}

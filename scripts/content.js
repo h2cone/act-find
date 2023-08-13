@@ -32,6 +32,7 @@ chrome.runtime.onMessage.addListener(request => {
                 matchIndex++;
             }
             break;
+        case "clear":
         case "close":
             unhighlight()
             break;

@@ -1,7 +1,12 @@
 let highlights = [];
-let matchIndex = -1;
+let matchIndex = 0;
 
-chrome.runtime.onMessage.addListener(request => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+    handleRequest(request, _sender, sendResponse).then(sendResponse);
+    return true;
+});
+
+async function handleRequest(request, _sender, sendResponse) {
     switch (request.type) {
         case "find":
             unhighlight()
@@ -15,29 +20,36 @@ chrome.runtime.onMessage.addListener(request => {
                     highlightTextNode(node, matches);
                 }
             });
+            if (highlights.length > 0) {
+                activeHighlightTextNode(highlights[matchIndex]);
+                sendResponse(getResult());
+            } else {
+                sendResponse({ result: "No results" });
+            }
             break;
         case "prev":
             if (matchIndex > 0) {
                 inactiveHighlightTextNode(highlights[matchIndex]);
                 activeHighlightTextNode(highlights[matchIndex - 1]);
                 matchIndex--;
+                sendResponse(getResult());
             }
             break;
         case "next":
             if (matchIndex < highlights.length - 1) {
-                if (matchIndex >= 0) {
-                    inactiveHighlightTextNode(highlights[matchIndex]);
-                }
+                inactiveHighlightTextNode(highlights[matchIndex]);
                 activeHighlightTextNode(highlights[matchIndex + 1]);
                 matchIndex++;
+                sendResponse(getResult());
             }
             break;
         case "clear":
         case "close":
             unhighlight()
+            sendResponse({ result: "No results" });
             break;
     }
-});
+}
 
 function activeHighlightTextNode(node) {
     node.classList.remove("highlight-inactive");
@@ -51,7 +63,7 @@ function inactiveHighlightTextNode(node) {
 
 function unhighlight() {
     highlights = [];
-    matchIndex = -1;
+    matchIndex = 0;
 
     const highlightedNodes = document.querySelectorAll("span.highlight-inactive,span.highlight-active");
     highlightedNodes.forEach(node => {
@@ -92,4 +104,8 @@ function findTextNodes(root, textNodes) {
             findTextNodes(root.childNodes[i], textNodes);
         }
     }
+}
+
+function getResult() {
+    return { result: (matchIndex + 1) + " of " + highlights.length }
 }

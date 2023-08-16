@@ -18,38 +18,50 @@ async function getTabId() {
 keywordInput.addEventListener("input", async function () {
   var keyword = keywordInput.value;
   if (keyword.length === 0) {
-    chrome.tabs.sendMessage(await getTabId(), {
+    const resp = await chrome.tabs.sendMessage(await getTabId(), {
       type: "clear",
     });
+    if (resp) {
+      resultSpan.textContent = resp.result;
+    }
     return;
   }
   tabId = await getTabId()
   chrome.scripting.insertCSS({
     target: { tabId: tabId },
-    files: ["highlight.css"]
+    files: ["css/highlight.css"]
   });
-  chrome.tabs.sendMessage(tabId, {
+  const resp = await chrome.tabs.sendMessage(tabId, {
     type: "find",
     keyword: keyword
   });
+  if (resp) {
+    resultSpan.textContent = resp.result;
+  }
 });
 
 prevMatchBtn.addEventListener("click", async function () {
   if (keywordInput.value === 0) {
     return;
   }
-  chrome.tabs.sendMessage(await getTabId(), {
+  const resp = await chrome.tabs.sendMessage(await getTabId(), {
     type: "prev",
   });
+  if (resp) {
+    resultSpan.textContent = resp.result;
+  }
 });
 
 nextMatchBtn.addEventListener("click", async function () {
   if (keywordInput.value.length === 0) {
     return;
   }
-  chrome.tabs.sendMessage(await getTabId(), {
+  const resp = await chrome.tabs.sendMessage(await getTabId(), {
     type: "next",
   });
+  if (resp) {
+    resultSpan.textContent = resp.result;
+  }
 });
 
 closeBtn.addEventListener("click", async function () {

@@ -54,6 +54,8 @@ async function handleRequest(request, _sender, sendResponse) {
 function activeHighlightTextNode(node) {
     node.classList.remove("highlight-inactive");
     node.classList.add("highlight-active");
+    const target = document.getElementById("match-" + matchIndex);
+    target.scrollIntoView({ behavior: "smooth"});
 }
 
 function inactiveHighlightTextNode(node) {
@@ -84,10 +86,12 @@ function highlightTextNode(node, matches) {
             fragment.appendChild(document.createTextNode(text.substring(lastIndex, index)));
         }
         const span = document.createElement("span");
+        span.id = "match-" + highlights.length;
         span.classList.add("highlight-inactive");
         span.textContent = match;
         fragment.appendChild(span);
         highlights.push(span);
+
         lastIndex = index + match.length;
     });
     if (lastIndex < text.length) {
